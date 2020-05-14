@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://npmcdn.com/react@15.3.0/dist/react.js"></script>
+    <script src="https://npmcdn.com/react-dom@15.3.0/dist/react-dom.js"></script>
+    <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+    <script src="https://npmcdn.com/jquery@3.1.0/dist/jquery.min.js"></script>
+    <script src="https://npmcdn.com/remarkable@1.6.2/dist/remarkable.min.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task scheduler</title>
+</head>
+<style>
+
+    *{
+        color: white;
+        box-sizing: border-box;
+    }
+
+    /* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: rgb(115, 65, 165);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+  background: rebeccapurple;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(84, 34, 134);
+}
+
+    .wrapper{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .textHeader{
+        font-size: 28px;
+        text-transform: uppercase;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 15px 0;
+    }
+
+    .textHeader a{
+        text-decoration: none;
+        font-size: inherit;
+        font-family: inherit;
+    }
+
+    .container{
+        margin: 0;
+        padding: 0;
+        width: 50%;
+        text-align: center;
+        font-family: 'Segoe UI';
+        font-size: 18px;
+        display: flex;
+    }
+
+    .inherit{
+        font-family: inherit;
+        font-size: inherit;
+        resize: none;
+    }
+
+    .button{
+        border-radius: 10px;
+        margin-left: 20px;
+        min-width: 150px;
+        cursor: pointer;
+        background-color: #713EA4;
+        border: none;
+        transition: 0.5s;
+
+        -webkit-box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+        -moz-box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+        box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+    }
+
+    .button:hover{
+        background-color: rebeccapurple;
+    }
+
+    .textar{
+        border-radius: 10px;
+        border: none;
+        font-size: 20px;
+        background-color: rebeccapurple;
+        width: 100%;
+        min-width: 220px;
+        overflow: hidden;
+        padding: 15px;
+        transition: 0.4s;
+
+        -webkit-box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+        -moz-box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+        box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+    }
+
+    .textar:focus{
+        background-color: #713EA4;
+    }
+
+    .tasksContainer{
+        margin-top: 40px;
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+
+    .taskBlock{
+        background-color: #713EA4;
+        border-radius: 15px;
+        margin-top: 40px;
+        width: 700px;
+        display: flex;
+        justify-content: center;
+        font-family: 'Segoe UI';
+        transition: 0.5s;
+        word-wrap: break-word;
+        opacity: 0;
+        position: relative;
+
+        -webkit-box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+        -moz-box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+        box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+    }
+
+    .taskBlock_active{
+        opacity: 1;
+        transition: 0.5s;
+    }
+
+    /* .taskBlock:hover{
+        background-color: rebeccapurple;
+    } */
+
+
+    .taskNumberwrapper{
+        display: flex;
+        align-items: center;
+    }
+
+
+    .taskNumber{
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        background-color: rgb(108, 42, 155);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-left: 20px;
+        margin-right: auto;
+    }
+
+    .taskText{
+        font-size: 19px;
+        margin: 20px;
+        max-width: 430px;
+        word-wrap: break-word;
+    }
+
+    .dateTimeWrapper{
+        min-width: 125px;
+        margin-right: 40px;
+        margin-left: auto;
+        padding: 20px;
+        background-color: rgb(74, 29, 119);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .deleteBtn{
+        position: absolute;
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+        background-color: rgb(74, 29, 119);
+        top: -10px;
+        right: -10px;
+        text-align: center;
+        padding-top: 4px;
+        cursor: pointer;
+
+        -webkit-box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+        -moz-box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+        box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+    }
+
+    .editBtn{
+        position: absolute;
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+        background-color: rgb(74, 29, 119);
+        top: 65px;
+        right: -12px;
+        text-align: center;
+        padding-top: 4px;
+        cursor: pointer;
+
+        -webkit-box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+        -moz-box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+        box-shadow: 11px 15px 16px -6px rgba(0,0,0,0.77);
+    }
+
+    .editInput{
+        border: none;
+        resize: none;
+        background-color: #713EA4;
+        font-size: 19px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 30px;
+        width: 430px;
+    }
+
+
+</style>
+<body style="background-color: rgb(129, 101, 255)">
+    <div id="root"></div>
+    
+</body>
+</html>
+
+
+<script type="text/babel">
+
+    class Component extends React.Component{
+        constructor(){
+            super();
+            this.state = {
+                taskList: [],
+                taskText: "",
+            }
+        }
+
+        addTask(task){
+            if(task.text.length > 10 && task.text.length < 100){
+                this.state.taskList.push(task);
+            }
+        }
+
+        deleteTask(index){
+            if(index < this.state.taskList.length && index > -1){
+                this.state.taskList.splice(index, 1);
+                this.setState({taskList: this.state.taskList});
+            }
+        }
+
+        editTask(index, task){
+            if(index < this.state.taskList.length & task.text.length > 10){
+                this.state.taskList[index] = task;
+                this.setState({taskList: this.state.taskList});
+            }
+        }
+
+        button_click(e){
+
+            setTimeout(() => {
+                let elems = document.querySelectorAll(".taskBlock");
+                for(let i = 0; i < elems.length; i++){
+                    elems[i].classList.add("taskBlock_active");
+                }
+            }, 50);
+
+            if(this.state.taskText){
+                let date = new Date();
+                this.addTask({id: this.state.taskList.length + 1, 
+                    text: this.state.taskText, 
+                    date: `${date.getDate()} / ${date.getMonth()} / ${date.getFullYear()}`, 
+                    time: `${date.getHours()} : ${date.getMinutes()} : ${date.getSeconds()}`});
+            }
+            this.setState({taskText: ""});
+        }
+
+        textarea_change(e){
+            this.setState({taskText: e.target.value});
+        }
+
+        textarea_KeyPress(e){
+            if(e.key === "Enter")
+                this.button_click();
+        }
+
+        render(){
+            return (
+                <div className="wrapper">
+                    <label className="textHeader"><a href="./react.html">task scheduler</a></label>
+                    <div className={"container"}>
+                        <input type="text" className="inherit textar" onKeyPress={(e) => this.textarea_KeyPress(e)} value={this.state.taskText} onChange={(e) => this.textarea_change(e)}/>
+                        <button className="inherit button" onClick={(e) => {this.button_click(e)}}>Add Task</button>
+                    </div>
+                    <Tasks edit={this.editTask.bind(this)} delete={this.deleteTask.bind(this)} tasklist={this.state.taskList} />
+                </div>
+            );
+        }
+    }
+
+    class Tasks extends React.Component{
+        constructor(props){
+            super();
+            this.props = props
+        }
+
+        render(){
+            return (
+                <div className="tasksContainer">
+                    {this.props.tasklist.map((item, index) => <Task key={index} edit={this.props.edit} delete={this.props.delete} index={index} task={item} />)}
+                </div>
+            );
+        }
+    }
+
+    class Task extends React.Component{
+        constructor(props){
+            super();
+            this.props = props;
+            this.state = {
+                text_area: this.props.task.text,
+                newText: "",
+                default_textValue: this.props.task.text
+            }
+        }
+
+        deleteBtn_click(e){
+            this.props.delete(this.props.index);
+        }
+
+        input_textchange(e){
+            this.setState({newText: e.target.value});
+        }
+
+        input_keyPress(e){
+            if(e.key === "Enter"){
+                let date = new Date();
+                let newTask = {
+                id: this.props.task.id, 
+                text: this.state.newText, 
+                date: `${date.getDate()} / ${date.getMonth()} / ${date.getFullYear()}`, 
+                time: `${date.getHours()} : ${date.getMinutes()} : ${date.getSeconds()}`};
+                this.props.edit(this.props.index, newTask);
+                this.setState({text_area: newTask.text});
+                this.setState({default_textValue: newTask.text});
+            }
+        }
+
+        editBtn_click(e){
+            this.setState({text_area: <input id="editInput" defaultValue={this.state.default_textValue} type="text" className="editInput" rows="1" onChange={(e) => this.input_textchange(e)} onKeyPress={(e) => this.input_keyPress(e)} />});
+        }
+
+        render(){
+            return (
+                <div className="taskBlock">
+                    <div className="deleteBtn" title={`Delete Task Number ${this.props.task.id}`} onClick={(e) => this.deleteBtn_click(e)}>X</div>
+                    <div className="editBtn" title={`Edit Task Number ${this.props.task.id}`} onClick={(e) => this.editBtn_click(e)}><img src="./edit.png" /></div>
+                    <div className="taskNumberwrapper">
+                        <div className="taskNumber">
+                            <div>{this.props.task.id}</div>
+                        </div>
+                    </div>
+
+                    <div className="taskText"><div>{this.state.text_area}</div></div>
+                    <div className="dateTimeWrapper">
+                        <div>{this.props.task.date}</div>
+                        <div>{this.props.task.time}</div>  
+                    </div>
+                </div>
+            );
+        }
+    }
+
+
+    ReactDOM.render(<Component />, document.getElementById("root"));
+</script>
+
+
